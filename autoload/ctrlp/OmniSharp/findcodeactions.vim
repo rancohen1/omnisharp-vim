@@ -58,9 +58,9 @@ endfunction
 "
 
 function! ctrlp#OmniSharp#findcodeactions#init() abort
-  return s:actions
+  return map(copy(s:actions), { k, v -> v.Name })
 endfunction
-
+        
 
 " The action to perform on the selected string
 "
@@ -71,8 +71,8 @@ endfunction
 "
 function! ctrlp#OmniSharp#findcodeactions#accept(mode, str) abort
   call ctrlp#exit()
-  let action = index(s:actions, a:str)
-  call pyeval(printf('runCodeAction(%s, %d)', string(s:mode), action))
+  let action = filter(copy(s:actions), { k, v -> v.Name == a:str })[0].Identifier
+  call pyeval(printf('runCodeAction(%s, "%s")', string(s:mode) , action))
 endfunction
 
 " Give the extension an ID

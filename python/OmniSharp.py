@@ -19,7 +19,7 @@ def getResponse(endPoint, additional_parameters=None, timeout=None):
     parameters['line'] = vim.eval('line(".")')
     parameters['column'] = vim.eval('col(".")')
     parameters['buffer'] = '\r\n'.join(vim.eval("getline(1,'$')")[:])
-    parameters['filename'] = vim.current.buffer.name
+    parameters['FileName'] = vim.current.buffer.name
     if additional_parameters != None:
         parameters.update(additional_parameters)
 
@@ -81,7 +81,7 @@ def openFile(filename, line, column):
 
 def getCodeActions(mode):
     parameters = codeActionParameters(mode)
-    js = getResponse('/getcodeactions', parameters)
+    js = getResponse('/v2/getcodeactions', parameters)
     if js != '':
         actions = json.loads(js)['CodeActions']
         return actions
@@ -89,9 +89,12 @@ def getCodeActions(mode):
 
 def runCodeAction(mode, action):
     parameters = codeActionParameters(mode)
-    parameters['codeaction'] = action
-    js = getResponse('/runcodeaction', parameters);
-    text = json.loads(js)['Text']
+    parameters['Identifier'] = action
+    print action
+    js = getResponse('v2/runcodeaction', parameters)
+    if json.loads(js)['Changes'] == None:
+        return True
+    text = json.loads(js)['Changes'][0]['Buffer'];
     setBufferText(text)
     return True
 
